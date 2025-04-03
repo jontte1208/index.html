@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batchkörningsberäknare</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+        }
+        
+        h1:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary);
+            margin: 10px auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--light);
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result h3 {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+        
+        .result-item {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .result-item strong {
+            color: var(--primary);
+        }
+        
+        .current-time {
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Batchkörningsberäknare</h1>
+        
+        <div id="currentTime" class="current-time"></div>
+        
+        <div class="form-group">
+            <label for="batchStorlek">Total batchstorlek:</label>
+            <input type="number" id="batchStorlek" placeholder="Ange totalt antal rutor i batchen" value="1000">
+        </div>
+        
+        <div class="form-group">
+            <label for="kordaRutor">Antal redan körda rutor:</label>
+            <input type="number" id="kordaRutor" placeholder="Ange antal redan körda rutor" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="takttid">Takttid (sekunder per ruta):</label>
+            <input type="number" step="0.1" id="takttid" placeholder="T.ex. 3.3" value="3.3">
+        </div>
+        
+        <button onclick="berakna()">Beräkna klartid</button>
+        
+        <div id="result" class="result">
+            <h3>Resultat</h3>
+            <div class="result-item">
+                <strong>Återstående rutor:</strong>
+                <span id="resAterstaende"></span>
+            </div>
+            <div class="result-item">
+                <strong>Takttid:</strong>
+                <span id="resTakttid"></span> sekunder/ruta
+            </div>
+            <div class="result-item">
+                <strong>Beräknad klartid:</strong>
+                <span id="resKlartid"></span>
+            </div>
+            <div class="result-item">
+                <strong>Återstående tid:</strong>
+                <span id="resTotalTid"></span>
+            </div>
+            <div class="result-item">
+                <strong>Produktionstakt:</strong>
+                <span id="resRutorPerTimme"></span> rutor/timme
+            </div>
+            
+            <div class="progress-bar">
+                <div id="progressBar" class="progress-bar-fill"></div>
+            </div>
+            
+            <div class="result-item">
+                <strong>Framsteg:</strong>
+                <span id="resFramsteg"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Uppdatera aktuell tid kontinuerligt
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                `Aktuell tid: ${formatTime(now)}`;
+        }
+        
+        // Uppdatera tiden varje sekund
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime(); // Kör direkt första gången
+        
+        function berakna() {
+            try {
+                // Hämta indata
+                const batchStorlek = parseInt(document.getElementById('batchStorlek').value);
+                const kordaRutor = parseInt(document.getElementById('kordaRutor').value);
+                const takttid = parseFloat(document.getElementById('takttid').value);
+                
+                // Validera indata
+                if (isNaN(batchStorlek) || isNaN(kordaRutor) || isNaN(takttid) || 
+                    batchStorlek <= 0 || takttid <= 0 || kordaRutor < 0) {
+                    throw new Error("Vänligen ange giltiga värden (batch > 0, körda ≥ 0, takttid > 0).");
+                }
+                
+                if (kordaRutor > batchStorlek) {
+                    throw new Error("Antal körda rutor kan inte vara större än batchstorleken.");
+                }
+                
+                // Beräkna återstående rutor
+                const aterstaendeRutor = batchStorlek - kordaRutor;
+                
+                // Använd aktuell tid
+                const startDatum = new Date();
+                
+                // Beräkna total tid i sekunder
+                const totalTidSekunder = aterstaendeRutor * takttid;
+                
+                // Beräkna klartid
+                const klartid = new Date(startDatum.getTime() + totalTidSekunder * 1000);
+                
+                // Beräkna timmar, minuter, sekunder
+                const timmar = Math.floor(totalTidSekunder / 3600);
+                const restSekunder = totalTidSekunder % 3600;
+                const minuter = Math.floor(restSekunder / 60);
+                const sekunder = Math.floor(restSekunder % 60);
+                
+                // Beräkna rutor per timme
+                const rutorPerTimme = 3600 / takttid;
+                
+                // Beräkna framsteg i procent
+                const framstegProcent = (kordaRutor / batchStorlek * 100).toFixed(1);
+                
+                // Visa resultat
+                document.getElementById('resAterstaende').textContent = aterstaendeRutor.toLocaleString('sv-SE');
+                document.getElementById('resTakttid').textContent = takttid;
+                document.getElementById('resKlartid').textContent = formatTime(klartid);
+                document.getElementById('resTotalTid').textContent = 
+                    `${timmar} tim ${minuter} min ${sekunder} sek`;
+                document.getElementById('resRutorPerTimme').textContent = rutorPerTimme.toFixed(1);
+                document.getElementById('resFramsteg').textContent = `${framstegProcent}%`;
+                
+                // Uppdatera progress bar
+                document.getElementById('progressBar').style.width = `${framstegProcent}%`;
+                
+                // Visa resultatdelen
+                document.getElementById('result').style.display = 'block';
+                
+                // Scrolla till resultat
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                alert(error.message);
+                document.getElementById('result').style.display = 'none';
+            }
+        }
+        
+        function formatTime(date) {
+            const options = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false 
+            };
+            return date.toLocaleTimeString('sv-SE', options);
+        }
+    </script>
+</body>
+</html>

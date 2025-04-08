@@ -11,24 +11,53 @@
             --light: #ecf0f1;
             --dark: #2c3e50;
             --success: #2ecc71;
+            --warning: #e67e22;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f9f9f9;
             color: var(--dark);
             line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Watermark */
+        body::after {
+            content: "Jonathan";
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.08);
+            font-weight: 300;
+            z-index: 1000;
+            pointer-events: none;
+            font-style: italic;
         }
         
         .container {
             background-color: white;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--success));
         }
         
         h1 {
@@ -37,6 +66,7 @@
             margin-bottom: 25px;
             font-size: 28px;
             position: relative;
+            font-weight: 700;
         }
         
         h1:after {
@@ -45,11 +75,12 @@
             width: 60px;
             height: 3px;
             background: var(--secondary);
-            margin: 10px auto;
+            margin: 12px auto;
+            border-radius: 3px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         
         label {
@@ -57,94 +88,151 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--primary);
+            font-size: 15px;
         }
         
         input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             box-sizing: border-box;
             font-size: 16px;
-            transition: border 0.3s;
+            transition: all 0.3s;
+            background-color: #fafafa;
         }
         
         input:focus {
             border-color: var(--secondary);
             outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         
         button {
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 18px;
             font-weight: 600;
             width: 100%;
             transition: all 0.3s;
             margin-top: 10px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         button:hover {
-            background-color: #2980b9;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #2980b9, var(--secondary));
         }
         
         .result {
             margin-top: 30px;
-            padding: 20px;
+            padding: 24px;
             background-color: var(--light);
-            border-radius: 8px;
+            border-radius: 12px;
             display: none;
             animation: fadeIn 0.5s ease;
+            border-left: 4px solid var(--secondary);
         }
         
         .result h3 {
             color: var(--primary);
             margin-top: 0;
-            border-bottom: 2px solid var(--secondary);
             padding-bottom: 10px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .result h3::before {
+            content: '📊';
+            margin-right: 10px;
         }
         
         .result-item {
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
         
         .result-item strong {
             color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .result-item span {
+            font-weight: 500;
+            color: #333;
         }
         
         .current-time {
             text-align: center;
-            font-size: 14px;
+            font-size: 15px;
             color: #7f8c8d;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            background: rgba(0,0,0,0.03);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: var(--dark);
         }
         
         .progress-bar {
-            height: 20px;
+            height: 10px;
             background-color: #e0e0e0;
             border-radius: 10px;
-            margin: 15px 0;
             overflow: hidden;
         }
         
         .progress-bar-fill {
             height: 100%;
-            background-color: var(--success);
+            background: linear-gradient(90deg, var(--success), #27ae60);
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1);
         }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsivitet */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            button {
+                padding: 14px;
+            }
         }
     </style>
 </head>
@@ -172,14 +260,14 @@
         <button onclick="berakna()">Beräkna klartid</button>
         
         <div id="result" class="result">
-            <h3>Resultat</h3>
+            <h3>Produktionsstatus</h3>
             <div class="result-item">
                 <strong>Återstående rutor:</strong>
                 <span id="resAterstaende"></span>
             </div>
             <div class="result-item">
                 <strong>Takttid:</strong>
-                <span id="resTakttid"></span> sekunder/ruta
+                <span id="resTakttid"></span> sek/ruta
             </div>
             <div class="result-item">
                 <strong>Beräknad klartid:</strong>
@@ -194,13 +282,14 @@
                 <span id="resRutorPerTimme"></span> rutor/timme
             </div>
             
-            <div class="progress-bar">
-                <div id="progressBar" class="progress-bar-fill"></div>
-            </div>
-            
-            <div class="result-item">
-                <strong>Framsteg:</strong>
-                <span id="resFramsteg"></span>
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Framsteg:</span>
+                    <span id="resFramsteg"></span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -209,8 +298,17 @@
         // Uppdatera aktuell tid kontinuerligt
         function updateCurrentTime() {
             const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit'
+            };
             document.getElementById('currentTime').textContent = 
-                `Aktuell tid: ${formatTime(now)}`;
+                `📅 ${now.toLocaleDateString('sv-SE', options)}`;
         }
         
         // Uppdatera tiden varje sekund
@@ -227,35 +325,27 @@
                 // Validera indata
                 if (isNaN(batchStorlek) || isNaN(kordaRutor) || isNaN(takttid) || 
                     batchStorlek <= 0 || takttid <= 0 || kordaRutor < 0) {
-                    throw new Error("Vänligen ange giltiga värden (batch > 0, körda ≥ 0, takttid > 0).");
+                    throw new Error("Ogiltiga värden. Batch > 0, körda ≥ 0, takttid > 0.");
                 }
                 
                 if (kordaRutor > batchStorlek) {
-                    throw new Error("Antal körda rutor kan inte vara större än batchstorleken.");
+                    throw new Error("Körda rutor kan inte vara fler än batchstorleken.");
                 }
                 
-                // Beräkna återstående rutor
+                // Beräkningar
                 const aterstaendeRutor = batchStorlek - kordaRutor;
-                
-                // Använd aktuell tid
                 const startDatum = new Date();
-                
-                // Beräkna total tid i sekunder
                 const totalTidSekunder = aterstaendeRutor * takttid;
-                
-                // Beräkna klartid
                 const klartid = new Date(startDatum.getTime() + totalTidSekunder * 1000);
                 
-                // Beräkna timmar, minuter, sekunder
+                // Formatera tidsuppdelning
                 const timmar = Math.floor(totalTidSekunder / 3600);
                 const restSekunder = totalTidSekunder % 3600;
                 const minuter = Math.floor(restSekunder / 60);
                 const sekunder = Math.floor(restSekunder % 60);
                 
-                // Beräkna rutor per timme
+                // Prestandamått
                 const rutorPerTimme = 3600 / takttid;
-                
-                // Beräkna framsteg i procent
                 const framstegProcent = (kordaRutor / batchStorlek * 100).toFixed(1);
                 
                 // Visa resultat
@@ -267,13 +357,11 @@
                 document.getElementById('resRutorPerTimme').textContent = rutorPerTimme.toFixed(1);
                 document.getElementById('resFramsteg').textContent = `${framstegProcent}%`;
                 
-                // Uppdatera progress bar
+                // Progress bar
                 document.getElementById('progressBar').style.width = `${framstegProcent}%`;
                 
-                // Visa resultatdelen
+                // Visa resultat
                 document.getElementById('result').style.display = 'block';
-                
-                // Scrolla till resultat
                 document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
                 
             } catch (error) {
@@ -289,7 +377,7 @@
                 second: '2-digit',
                 hour12: false 
             };
-            return date.toLocaleTimeString('sv-SE', options);
+            return date.toLocaleTimeString('sv-SE', options) + " (" + date.toLocaleDateString('sv-SE') + ")";
         }
     </script>
 </body>
